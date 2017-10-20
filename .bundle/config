@@ -1,2 +1,4 @@
 ---
 BUNDLE_BIN: "dev"
+BUNDLE_PATH: "vendor/cache"
+BUNDLE_DISABLE_SHARED_GEMS: "true"

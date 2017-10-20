@@ -25,51 +25,93 @@ module Uvm
       raise "Unknown command"
     end
 
-    def dispatch_current
+    def dispatch_available
+      o = {
+        beta: @options['--beta'],
+        patch: @options['--patch'],
+        all: @options['--all']  
+      }
+
+      available = @version_manager.available(**o)
+
+      $stderr.puts "Available Unity versions:"
+      available.each do |a|
+        $stdout.puts "  #{a}"
+      end
+    end
+
+    def dispatch_installed
+      installed = @version_manager.installed
+      $stderr.puts "Installed Unity versions:"
+      if installed.empty?
+        $stderr.puts "None"
+      else
+        installed.each do |i|
+          version = i.delete :version
+
+          annotations = i.select do |_, is_true|
+            is_true
+          end.map(&:first)
+
+          if annotations.empty?
+            puts "  #{version}"
+          else
+            puts "  #{version} [#{annotations.join ", "}]"
+          end
+        end
+      end
+    end
+
+    def dispatch_install           
+      @version_manager.install(**create_install_opts)
+    end
+
+    def dispatch_uninstall            
+      @version_manager.uninstall(**create_install_opts)
+    end
+
+    def dispatch_local
       begin
-        current = @version_manager.current
-        $stdout.puts current
+        local = @version_manager.local
+        if local.nil?
+          abort "Current directory is not a Unity project"
+        else
+          $stdout.puts local[:version]
+        end
       rescue => e
         abort e.message
       end
     end
 
-    def dispatch_list
-      l = @version_manager.list
-      $stderr.puts "Installed Unity versions:"
-      $stderr.puts "None" if l.empty?
-      $stdout.puts l
+    def dispatch_global
+      begin
+        global = @version_manager.global
+        $stdout.puts global
+      rescue => e
+        abort e.message
+      end
     end
 
-    def dispatch_use
-      v = @options['<version>']
+    def dispatch_link
+      v = @options['<version>'] || @version_manager.local_version
       begin
-        new_path = @version_manager.use version: v
-        $stdout.puts "Using #{v} : #{UNITY_LINK} -> #{new_path}"
+        new_path = @version_manager.link version: v
       rescue ArgumentError => e
         abort e.message
-      rescue
+      rescue => e
         $stderr.puts "Version #{v} isn't available"
         $stderr.puts "Available versions are:"
-        $stderr.puts @version_manager.list
+        $stderr.puts @version_manager.available
         abort
       end
+      $stdout.puts "Linked #{v} : #{UnityLink} -> #{new_path}"
     end
 
     def dispatch_clear
       begin
-        c = @version_manager.current
+        version = @version_manager.global
         @version_manager.clear
-        $stdout.puts "Clear active Unity version old: #{c}"
-      rescue => e
-        abort e.message
-      end
-    end
-
-    def dispatch_detect
-      begin
-        version = @version_manager.detect
-        $stdout.puts version
+        $stdout.puts "Cleared linked Unity version #{version}"
       rescue => e
         abort e.message
       end
@@ -81,30 +123,6 @@ module Uvm
       o.merge!({:platform => @options['<platform>']}) if @options['<platform>']
       
       @version_manager.launch(**o)
-    end
-
-    def dispatch_versions
-      o = {
-        beta: @options['--beta'],
-        patch: @options['--patch'],
-        all: @options['--all']  
-      }
-
-      l = @version_manager.versions **o
-      i = @version_manager.list mark_active:false
-      l = l - i
-
-      $stderr.puts "Available Unity versions:"
-      $stderr.puts "None" if l.empty?
-      $stdout.puts l
-    end
-
-    def dispatch_install           
-      @version_manager.install(**create_install_opts)
-    end
-
-    def dispatch_uninstall            
-      @version_manager.uninstall(**create_install_opts)
     end
 
     private

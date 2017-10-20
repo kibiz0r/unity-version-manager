@@ -10,16 +10,15 @@ doc = <<DOCOPT
 #{command_name} - Tool that just manipulates a link to the current unity version 
 
 Usage:
-  #{command_name} current
-  #{command_name} list
-  #{command_name} use <version>
-  #{command_name} install <version> (([--android] [--ios] [--webgl] | [--mobile]) ([--linux] [--windows] | [--desktop]) | [-a | --all])
+  #{command_name} available (([--beta] [--patch]) | [-a |--all])
+  #{command_name} installed
+  #{command_name} install [<version>] (([--android] [--ios] [--webgl] | [--mobile]) ([--linux] [--windows] | [--desktop]) | [-a | --all])
   #{command_name} uninstall <version> (([--android] [--ios] [--webgl] | [--mobile]) ([--linux] [--windows] | [--desktop]) | [-a | --all])
-  #{command_name} clear
-  #{command_name} detect
   #{command_name} launch [<project-path>] [<platform>]
-  #{command_name} versions (([--beta] [--patch]) | [-a |--all])
-  #{command_name} version
+  #{command_name} local
+  #{command_name} global
+  #{command_name} link [<version>]
+  #{command_name} clear
   #{command_name} (-h | --help)
   #{command_name} --version
 
@@ -36,15 +35,16 @@ Options:
 --desktop         install desktop support (linux, windows)
 
 Commands:
-clear             Remove the link so you can install a new version without overwriting
-current           Print the current version in use
-detect            Find which version of unity was used to generate the project in current dir
+available         List available Unity versions
+installed         List installed Unity versions
+install           Install specified Unity version, or the version used by this project
+uninstall         Uninstall specified Unity version
+launch            Launch the Unity version used by this project
+local             Print the Unity version used by this project
+global            Print the current Unity version linked to /Applications/Unity
+link              Link /Applications/Unity to specified Unity version
+clear             Clear the currently-linked /Applications/Unity (only if it is a link)
 help              Describe available commands or one specific command
-launch            Launch the current version of unity
-list              list unity versions available
-versions          list unity versions available to download
-use               Use specific version of unity
-install           Install specified unity version
 
 DOCOPT
 

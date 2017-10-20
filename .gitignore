@@ -4,3 +4,4 @@ Gemfile.lock
 coverage
 dev
 *.gem
+vendor

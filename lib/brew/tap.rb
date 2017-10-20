@@ -3,17 +3,18 @@ require "open3"
 module Brew
   class Tap
     def include? tap_name
-      taps = []
-      
-      Open3.popen3("brew tap") {|_stdin,stdout,_stderr,_thread|
-        taps = stdout.read.chomp.lines.map { |i| i.chomp }
-      }
-      
-      taps.include? tap_name
+      if @taps.nil?
+        Open3.popen3("brew tap") {|_stdin,stdout,_stderr,_thread|
+          @taps = stdout.read.chomp.lines.map { |i| i.chomp }
+        }
+      end
+
+      @taps.include? tap_name
     end
 
     def add tap_name
       system "brew tap #{tap_name}"
+      @taps = nil
     end
 
     def ensure tap_name
